@@ -1,0 +1,12 @@
+
+OPENCAS_URL=https://pre-opencas.opentrends.net/auth/login
+NEXT_PUBLIC_APP_NAME=mailer
+NEXT_PUBLIC_BACKEND_URL=https://pre-opengate.opentrends.net/graphql
+NEXT_PUBLIC_DEFAULT_TEMPLATE_URL=https://pre-opengate.opentrends.net/mailer/public/templates/default.html
+NEXT_PUBLIC_PROFILE_URL=https://pre-opencas.opentrends.net/dashboard/profile
+NEXT_PUBLIC_KEYCLOAK_URL=https://ot075-keycloak.opentrends.net
+NEXT_PUBLIC_KEYCLOAK_REALM=opentrends
+NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=OpenMailer
+# NEXT_PUBLIC_PROFILE_URL=http://localhost:3000/dashboard/profile
+NEXT_PUBLIC_MAILER_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YTMzMTMzMzFmM2Q3OTIzNThkYTY2YyIsInVwZGF0ZWRBdCI6IjIwMjUtMDItMjVUMTA6MDc6NDIuMDA1WiIsImlhdCI6MTc0MDQ3ODA2Mn0.5_ovMmOYOfM-FXGM3zX1kxLp3X9QT62dUQhcAqlCop0
+NEXT_PUBLIC_API_KEY="18vd4xjvw2rCe4BnFSDI9fRT1WDnjGoa"

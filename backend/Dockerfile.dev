@@ -1,0 +1,21 @@
+# Use a lightweight Node.js image
+FROM node:20.11.1-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY prisma ./prisma
+
+# Install all dependencies
+RUN npm install
+
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Expose the port
+EXPOSE 4001
+
+# Start the application in development mode
+CMD ["npm", "run", "start:dev"]

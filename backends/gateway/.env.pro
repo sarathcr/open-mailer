@@ -1,0 +1,9 @@
+PORT=5000
+NODE_ENV=production # for pro "production" for dev "development", cookie secure related
+FRONTEND_URLS=https://pre-opencas.opentrends.net,https://pre-openmailer.opentrends.net,https://pre-openuploads.opentrends.net,https://pre-opengate.opentrends.net,http://localhost:5000,chrome-extension://flnheeellpciglgpaodhkhmapeljopja
+CAS_BACKEND_URL=http://cas:4000/graphql
+MAILER_BACKEND_URL=http://mailer:4001/graphql
+UPLOADS_BACKEND_URL=http://uploads:4002/file-upload/upload
+UPLOADS_FILES_URL=http://uploads:4002/files
+MAILER_STATIC_URL=http://mailer:4001/public
+JWT_SECRET=your-very-secure-secret-key

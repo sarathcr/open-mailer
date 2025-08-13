@@ -1,0 +1,54 @@
+# compiled output
+/dist
+/node_modules
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Node modules
+/backend/node_modules/
+/backend/cas/node_modules/
+/backend/gateway/node_modules/
+/backend/uploads/node_modules/
+/frontend/node_modules/
+
+# Environment files
+/backend/.env
+/frontend/.env
+
+# Build and cache files
+/backend/dist/
+/backend/cas/dist/
+/backend/uploads/dist/
+/backend/gateway/dist/
+/backend/cache/
+/backend/cas/cache/
+/backend/uploads/cache/
+/backend/gateway/cache/
+/frontend/build/
+/frontend/.cache/
+
+# Logs
+/backend/logs/
+/backend/*.log
+/frontend/logs/
+/frontend/*.log
+
+# IDE or editor-specific files
+.idea/
+# .vscode/
+*.swp
+
+# Miscellaneous
+.DS_Store
+
+.yarn
+
+.yarn/install-state.gz

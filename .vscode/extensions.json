@@ -1,0 +1,15 @@
+{
+    "recommendations": [
+      "dbaeumer.vscode-eslint",          // ESLint plugin
+      "esbenp.prettier-vscode",          // Prettier plugin
+      "eamodio.gitlens",                 // GitLens for git insights (optional)
+      "ms-vscode.vscode-typescript-next", // TypeScript support (optional)
+      "bradlc.vscode-tailwindcss",
+      "Prisma.prisma"
+    ],
+    "unwantedRecommendations": [
+      "some.unwanted-extension" // Add any extensions you do not want
+    ]
+  }
+
+  

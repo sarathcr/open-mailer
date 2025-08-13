@@ -1,0 +1,255 @@
+stages:
+  - cleanup
+  - build
+  - deploy
+
+variables:
+  IMAGE_TAG: latest
+  NETWORK_NAME: my_network
+
+before_script:
+  - git config --global user.email "ci@gitlab.com"
+  - git config --global user.name "GitLab CI"
+  - git remote set-url origin https://oauth2:${GITLAB_PAT}@gitlab.opentrends.net/fe0001-fe-pocs/open-mailer.git
+  - echo "GITLAB_PAT:${GITLAB_PAT}"
+  - git fetch --tags
+
+
+cleanup:
+  stage: cleanup
+  tags:
+    - node
+  image: docker:latest
+  script:
+    - echo "Cleaning up old images, containers, and cache..."
+    - docker network create $NETWORK_NAME || true
+    - docker container prune -f
+    - docker image prune -af
+    - docker volume prune -f
+    - docker builder prune --all --force
+  rules:
+    - if: '$CI_COMMIT_TAG' # Skips the job if it's triggered by a tag
+      when: never
+    - changes:
+      - "backends/**/**"
+      - "backend/**/**"
+      - "frontend/**/**"
+      - "frontends/**/**"
+      if: '$CI_COMMIT_BRANCH == "feature/ciForFe"'
+      when: on_success
+
+.build-template: &build-template
+  stage: build
+  tags:
+    - node
+  image: docker:latest
+  before_script:
+    - apk add --no-cache jq git
+  script:
+    - echo "Checking if build is needed for $SERVICE_NAME..."
+
+    # Fetch remote tags and force update to avoid stale tag data
+    - git fetch --tags --force
+
+    # Extract version from package.json, defaulting to an empty string if missing
+    - APP_VERSION=$(jq -r '.version // ""' "$BUILD_PATH/package.json")
+
+    # Check if the exact tag already exists
+    - LAST_TAG=$(git ls-remote --tags origin | awk '{print $2}' | sed 's|refs/tags/||' | grep -x "$SERVICE_NAME-v$APP_VERSION" || echo "")
+
+    # Skip build if the tag already exists
+    - if [ "$LAST_TAG" = "$SERVICE_NAME-v$APP_VERSION" ]; then
+        echo "Version ($APP_VERSION) already exists as tag. Skipping build.";
+        exit 1;
+      fi
+
+    - echo "New version detected ($APP_VERSION). Proceeding with build."
+    - docker build --pull --tag "$SERVICE_NAME:$IMAGE_TAG" -f "$DOCKERFILE_PATH" "$BUILD_PATH"
+  rules:
+    - if: '$CI_COMMIT_TAG' # Skips the job if it's triggered by a tag
+      when: never
+    - changes:
+        - "$BUILD_PATH/**"
+      if: '$CI_COMMIT_BRANCH == "feature/ciForFe"'
+      when: on_success
+
+build-mailer:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: mailer
+    DOCKERFILE_PATH: backend/Dockerfile.prod
+    BUILD_PATH: backend
+
+build-cas:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: cas
+    DOCKERFILE_PATH: backends/cas/Dockerfile.prod
+    BUILD_PATH: backends/cas
+
+build-uploads:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: uploads
+    DOCKERFILE_PATH: backends/uploads/Dockerfile.prod
+    BUILD_PATH: backends/uploads
+
+build-gateway:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: gateway
+    DOCKERFILE_PATH: backends/gateway/Dockerfile.prod
+    BUILD_PATH: backends/gateway
+
+build-fe-cas:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: fe-cas
+    DOCKERFILE_PATH: frontends/cas/Dockerfile.prod
+    BUILD_PATH: frontends/cas
+
+build-fe-uploads:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: fe-uploads
+    DOCKERFILE_PATH: frontends/uploads/Dockerfile.prod
+    BUILD_PATH: frontends/uploads
+
+build-fe-mailer:
+  <<: *build-template
+  variables:
+    SERVICE_NAME: fe-mailer
+    DOCKERFILE_PATH: frontend/Dockerfile.prod
+    BUILD_PATH: frontend
+
+.deploy-template: &deploy-template
+  stage: deploy
+  tags:
+    - node
+  image: docker:latest
+  before_script:
+    - apk add --no-cache jq git
+    - git fetch --tags --force
+    - echo "Checking if deployment is needed for $SERVICE_NAME..."
+    - APP_VERSION=$(jq -r '.version // ""' "$BUILD_PATH/package.json")
+    - echo "🗑️ Removing all local tags..."
+    - git tag -d $(git tag) || true
+    - LAST_TAG=$(git ls-remote --tags origin | awk '{print $2}' | sed 's|refs/tags/||' | grep -x "$SERVICE_NAME-v$APP_VERSION" || echo "")
+    - if [ "$LAST_TAG" = "$SERVICE_NAME-v$APP_VERSION" ]; then
+        echo "Version ($APP_VERSION) already exists as tag. Skipping deployment.";
+        exit 1;
+      fi
+    - echo "Deploying new version:$APP_VERSION"
+    - rm -f .env.list
+    - printenv | grep -E '^[A-Z0-9_]+=' > .env.list
+  script:
+    - docker stop "$SERVICE_NAME" || true
+    - docker rm "$SERVICE_NAME" || true
+    - docker run -d --restart unless-stopped
+      --name "$SERVICE_NAME"
+      --network "$NETWORK_NAME"
+      -p ${SERVICE_PORT}
+      --env-file .env.list
+      "$SERVICE_NAME:$IMAGE_TAG"
+
+    # Create and push a new Git tag
+    - echo "🏷️ Tagging new version:$APP_VERSION"
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+    - git tag "$SERVICE_NAME-v$APP_VERSION"
+    - git remote set-url origin "https://oauth2:${GITLAB_PAT}@gitlab.opentrends.net/fe0001-fe-pocs/open-mailer.git"
+    - git push origin "$SERVICE_NAME-v$APP_VERSION"
+    - echo "✅ Tag $SERVICE_NAME-v$APP_VERSION pushed successfully!"
+  rules:
+    - if: '$CI_COMMIT_TAG' # Skips the job if it's triggered by a tag
+      when: never
+    - changes:
+        - "$BUILD_PATH/**"
+      if: '$CI_COMMIT_BRANCH == "feature/ciForFe"'
+      when: on_success
+
+deploy-mailer:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: mailer
+    SERVICE_PORT: "4001:4001"
+    BUILD_PATH: backend
+
+deploy-cas:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: cas
+    SERVICE_PORT: "4003:4000"
+    BUILD_PATH: backends/cas
+
+deploy-uploads:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: uploads
+    SERVICE_PORT: "4002:4002"
+    BUILD_PATH: backends/uploads
+  script:
+    - docker stop uploads || true
+    - docker rm uploads || true
+    - mkdir -p /opt/uploads-data # Ensure host directory exists
+    - rm -f .env.list
+    - printenv | grep -E '^[A-Z0-9_]+=' > .env.list
+    - docker run -d --restart unless-stopped
+      --name uploads
+      --network "$NETWORK_NAME"
+      -p 4002:4002
+      --env-file .env.list
+      -v /opt/uploads-data:/app/uploads
+      uploads:$IMAGE_TAG
+
+    # Create and push a new Git tag
+    - echo "🏷️ Tagging new version:$APP_VERSION"
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+    - git tag "$SERVICE_NAME-v$APP_VERSION"
+    - git remote set-url origin "https://oauth2:${GITLAB_PAT}@gitlab.opentrends.net/fe0001-fe-pocs/open-mailer.git"
+    - git push origin "$SERVICE_NAME-v$APP_VERSION"
+    - echo "✅ Tag $SERVICE_NAME-v$APP_VERSION pushed successfully!"
+
+deploy-gateway:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: gateway
+    SERVICE_PORT: "5000:5000"
+    BUILD_PATH: backends/gateway
+  script:
+    - while ! docker ps --format '{{.Names}}' | grep -qE 'mailer|cas'; do echo "Waiting for mailer and cas to start..."; sleep 5; done
+    - docker stop gateway || true
+    - docker rm gateway || true
+    - docker run -d --restart unless-stopped --name gateway --network $NETWORK_NAME -p 5000:5000 gateway:$IMAGE_TAG
+
+    # Create and push a new Git tag
+    - echo "🏷️ Tagging new version:$APP_VERSION"
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+    - git tag "$SERVICE_NAME-v$APP_VERSION"
+    - git remote set-url origin "https://oauth2:${GITLAB_PAT}@gitlab.opentrends.net/fe0001-fe-pocs/open-mailer.git"
+    - git push origin "$SERVICE_NAME-v$APP_VERSION"
+    - echo "✅ Tag $SERVICE_NAME-v$APP_VERSION pushed successfully!"
+
+
+deploy-fe-cas:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: fe-cas
+    SERVICE_PORT: "3000:3000"
+    BUILD_PATH: frontends/cas
+
+deploy-fe-uploads:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: fe-uploads
+    SERVICE_PORT: "3002:3002"
+    BUILD_PATH: frontends/uploads
+
+deploy-fe-mailer:
+  <<: *deploy-template
+  variables:
+    SERVICE_NAME: fe-mailer
+    SERVICE_PORT: "3001:3001"
+    BUILD_PATH: frontend

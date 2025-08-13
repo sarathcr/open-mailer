@@ -1,0 +1,46 @@
+{
+  "name": "open-mailer",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://gitlab.opentrends.net/fe0001-fe-pocs/open-mailer.git",
+  "author": "Ratheesh <rpadinjareambattu@opentrends.net>",
+  "license": "MIT",
+  "workspaces": [
+    "backends/cas",
+    "backend",
+    "backends/uploads",
+    "frontends/cas",
+    "frontend",
+    "frontends/uploads",
+    "backends/gateway"
+  ],
+  "scripts": {
+    "start:casbe": "yarn workspace casbe start",
+    "start:dev:casbe": "yarn workspace casbe start:dev",
+    "start:mailerbe": "yarn workspace mailerbe start",
+    "start:dev:mailerbe": "yarn workspace mailerbe start:dev",
+    "start:uploadsbe": "yarn workspace uploadsbe start",
+    "start:dev:uploadsbe": "yarn workspace uploadsbe start:dev",
+    "start:frontend": "yarn workspace frontend dev",
+    "start:cas": "yarn workspace cas dev",
+    "start:uploads": "yarn workspace uploads dev",
+    "start:gateway": "yarn workspace gateway start",
+    "start:dev:gateway": "yarn workspace gateway start:dev",
+    "start:dev": "concurrently \"yarn start:dev:casbe\" \"yarn start:dev:mailerbe\" \"yarn start:dev:uploadsbe\" \"yarn start:cas\" \"yarn start:frontend\" \"yarn start:uploads\" \"sleep 15 && yarn start:dev:gateway\"",
+    "lint": "yarn workspace casbe lint && yarn workspace mailerbe lint && yarn workspace frontend lint && yarn workspace uploadsbe lint && yarn workspace uploads lint && yarn workspace gateway lint",
+    "lint:fix": "yarn workspace casbe lint && yarn workspace mailerbe lint && yarn workspace frontend lint:fix && yarn workspace uploadsbe lint && yarn workspace uploads lint:fix && yarn workspace gateway lint && ",
+    "prepare": "husky",
+    "clean": "git clean -fdX **/node_modules",
+    "prisma-generate": "yarn workspace casbe prisma-generate && yarn workspace mailerbe prisma-generate"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "husky": "^9.1.5"
+  },
+  "engines": {
+    "node": "22.14.0",
+    "yarn": "4.7.0"
+  },
+  "packageManager": "yarn@4.7.0"
+}

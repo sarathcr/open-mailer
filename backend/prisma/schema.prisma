@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model EmailTemplate {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  filePath          String?
+  primaryImageUrl   String?
+  primaryLinkUrl    String?
+  primaryBg         String?
+  primaryColor      String?
+  secondaryImageUrl String?
+  secondaryLinkUrl  String?
+  secondaryBg       String?
+  footerContent     String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+  Status            Status[]
+}
+
+model SMTPConfig {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  host      String?
+  port      Int?
+  username  String
+  password  String
+  secure    Boolean
+  from      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  isBackUp  Boolean   @default(false)
+  Status    Status[]
+}
+
+enum TokenStatus {
+  ACTIVE
+  DISABLED
+  REVOKED
+}
+
+model ApiToken {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  name      String      @unique
+  status    TokenStatus @default(ACTIVE)
+  duration  Int
+  createdBy Json
+  createdAt DateTime    @default(now())
+  expireAt  DateTime?
+  deletedAt DateTime?
+  updatedAt DateTime?
+  Status    Status[]
+}
+
+enum StatusEnum {
+  SUCCESS
+  PENDING
+  FAILED
+}
+
+model Status {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  smtpConfigId    String         @db.ObjectId
+  smtpConfig      SMTPConfig?    @relation(fields: [smtpConfigId], references: [id])
+  emailTemplateId String         @db.ObjectId
+  emailTemplate   EmailTemplate? @relation(fields: [emailTemplateId], references: [id])
+  apiTokenId      String         @db.ObjectId
+  apiToken        ApiToken?      @relation(fields: [apiTokenId], references: [id])
+  recipients      String
+  data            Json?
+  status          String
+  retries         Int
+  maxRetries      Int
+  errorMessage    String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+}
+
+// model History {
+//   id            String     @id @default(auto()) @map("_id") @db.ObjectId
+//   entityId      String     @db.ObjectId
+//   entityType    EntityType
+//   changes       Json
+//   changeType    ChangeType
+//   changedBy     String     @db.ObjectId
+//   changedByName String
+//   changedAt     DateTime   @default(now()) @db.Timestamp
+//   user          User       @relation(fields: [entityId], references: [id])
+// }

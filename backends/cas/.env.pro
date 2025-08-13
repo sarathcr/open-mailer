@@ -1,0 +1,23 @@
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+PORT=4000
+NODE_ENV=production # for pro "production", cookie secure relted
+DATABASE_URL="mongodb+srv://rthuid:Jr8gptCDlGr8K8Q1@cluster0.rvftp0v.mongodb.net/Auth"
+JWT_ACCESS_SECRET="SuperSecretKey123!@#SecureAndLongEnoughToBeHardToGuess"
+JWT_RESET_PASSWORD_SECRET="JWT_RESET_PASSWORD_SECRETSuperSecretKey123!@#SecureAndLongEnoughToBeHardToGuess"
+JWT_REFRESH_SECRET="JWT_REFRESH_SECRET#$#$SECRETSuperSecretKey123!@#SecureAndLongEnoughToBeHardToGuess"
+JWT_ACCESS_EXPIRATION="15m"
+JWT_REFRESH_EXPIRATION="7d"
+JWT_RESET_PASSWORD_EXPIRATION="1h"
+# for gateway header
+JWT_SECRET=your-very-secure-secret-key
+COOKIE_ACCESS_EXPIRATION=900000
+COOKIE_REFRESH_EXPIRATION=604800000
+SMTP_CONFIG_ID=675a8bf2e8acbe84107164f5
+EMAIL_TEMPLATE_ID=67d2bfc2419fa053d7df1304
+CAS_FRONTEND_URL=https://pre-opencas.opentrends.net/
+GATEWAY_BACKEND_URL=https://pre-opengate.opentrends.net/graphql
+MAILER_API_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YTAzOWU2MjdlMzE3MzljMWJkNWY5ZSIsInVwZGF0ZWRBdCI6IjIwMjUtMDMtMTNUMTI6MDY6NDIuMDc3WiIsImlhdCI6MTc0MTg2NzYwMn0.E62P_qzKqcKvzhRWjCzyBQ8TSWYTh_dn7Nr6eoyYWXE

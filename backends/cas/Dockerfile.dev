@@ -1,0 +1,28 @@
+# Use a lightweight Node.js image
+FROM node:20.11.1-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Copy the entire application
+COPY . .
+
+# Copy environment file for development
+COPY .env .env
+
+# Install dependencies(only production dependencies)
+RUN npm install --omit=dev
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Expose the port from env
+ARG PORT
+ENV PORT=${PORT}
+EXPOSE ${PORT}
+
+# Start NestJS in watch mode
+CMD ["npm", "run", "start:dev"]

@@ -1,0 +1,54 @@
+# Use the official Node.js image as the base image
+FROM node:18-alpine AS builder
+
+# Set the working directory
+WORKDIR /app
+
+# Declare build arguments for environment variables
+ARG NEXT_PUBLIC_APP_NAME
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_KEYCLOAK_URL
+ARG NEXT_PUBLIC_KEYCLOAK_REALM
+ARG NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+ARG NEXT_PUBLIC_PROFILE_URL
+ARG NEXT_PUBLIC_MAILER_TOKEN
+ARG NEXT_PUBLIC_DEFAULT_TEMPLATE_URL
+
+# Set environment variables for build and runtime
+ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_KEYCLOAK_URL=$NEXT_PUBLIC_KEYCLOAK_URL
+ENV NEXT_PUBLIC_KEYCLOAK_REALM=$NEXT_PUBLIC_KEYCLOAK_REALM
+ENV NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=$NEXT_PUBLIC_KEYCLOAK_CLIENT_ID
+ENV NEXT_PUBLIC_PROFILE_URL=$NEXT_PUBLIC_PROFILE_URL
+ENV NEXT_PUBLIC_MAILER_TOKEN=$NEXT_PUBLIC_MAILER_TOKEN
+ENV NEXT_PUBLIC_DEFAULT_TEMPLATE_URL=$NEXT_PUBLIC_DEFAULT_TEMPLATE_URL
+
+# Copy package.json and yarn.lock (or package-lock.json)
+COPY package.json ./
+
+# Install dependencies
+RUN yarn install
+
+# Copy the rest of the application files
+COPY . .
+
+# Build the Next.js application
+RUN yarn build
+
+# -- Production image --
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# Set environment variables
+ENV NODE_ENV=production
+
+# Copy the built application from the builder stage
+COPY --from=builder /app ./
+
+# Expose the port Next.js runs on
+EXPOSE 3001
+
+# Start the application
+CMD ["yarn", "start"]
