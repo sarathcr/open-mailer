@@ -12,7 +12,7 @@ RUN corepack enable
 RUN yarn install --immutable
 
 # 2. Generate Prisma client (now using the installed package)
-RUN npx prisma generate
+RUN npx prisma generate --schema=./backend/prisma/schema.prisma
 
 # 3. Build all applications that have a "build" script
 RUN yarn workspaces foreach --all run build
