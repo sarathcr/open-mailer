@@ -14,7 +14,7 @@ RUN corepack enable
 RUN yarn install --immutable
 
 # Build all workspaces (if any) and the main app
-RUN yarn build
+RUN yarn workspaces foreach run build
 
 
 # ---- Production Stage: Create the final image ----
