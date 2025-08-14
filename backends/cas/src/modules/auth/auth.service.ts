@@ -3,8 +3,18 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs'; // Assuming PrismaService is already created
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtPayload } from './interface/jwt-payload.interface';
-import { User } from '@prisma/client';
-import { UserEntity } from '../users/entities/user.entity';
+// import { User } from '@prisma/client';
+type User = {
+  id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  isAdmin: boolean;
+  isActive: boolean;
+  deletedAt: Date | null;
+  // Add other fields as needed from your Prisma user model
+};
 import { ValidateTokenResponse } from './dto/validate-token-response.dto';
 import { MailClientService } from '../open-client/mail-client.service';
 import { SuccessResponse } from '../common/dto/success-response.dto';
