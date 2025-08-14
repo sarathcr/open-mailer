@@ -10,6 +10,10 @@ COPY . .
 # Enable yarn
 RUN corepack enable
 
+
+# Generate Prisma client to make types available for the build
+RUN npx prisma generate
+
 # Install all dependencies to build the project
 RUN yarn install --immutable
 
