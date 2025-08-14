@@ -2,22 +2,19 @@
 FROM node:18-alpine AS base
 WORKDIR /app
 
-# Copy dependency definition files
-COPY package.json yarn.lock ./
-# Copy all source code
+# Copy all source code and dependency files
 COPY . .
 
 # Enable yarn
 RUN corepack enable
 
-
-# Generate Prisma client to make types available for the build
-RUN npx prisma generate
-
-# Install all dependencies to build the project
+# 1. Install all dependencies from the lockfile
 RUN yarn install --immutable
 
-# Build all workspaces (if any) and the main app
+# 2. Generate Prisma client (now using the installed package)
+RUN npx prisma generate
+
+# 3. Build all applications that have a "build" script
 RUN yarn workspaces foreach --all run build
 
 
