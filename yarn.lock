@@ -4192,13 +4192,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-cookie@npm:^3":
-  version: 3.0.6
-  resolution: "@types/js-cookie@npm:3.0.6"
-  checksum: 10c0/173afaf5ea9d86c22395b9d2a00b6adb0006dcfef165d6dcb0395cdc32f5a5dcf9c3c60f97194119963a15849b8f85121e1ae730b03e40bc0c29b84396ba22f9
-  languageName: node
-  linkType: hard
-
 "@types/json-schema@npm:*, @types/json-schema@npm:^7.0.8, @types/json-schema@npm:^7.0.9":
   version: 7.0.15
   resolution: "@types/json-schema@npm:7.0.15"
@@ -11122,6 +11115,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jose@npm:^6.0.12":
+  version: 6.0.12
+  resolution: "jose@npm:6.0.12"
+  checksum: 10c0/e5ca51b078b2443f6ca671e14d72e0ffd21b760dac0d77cabd7af649a127376ec90665c8b25f34dd88bb31094915ee662daf76e0b33a025d28dbc2bc17413dec
+  languageName: node
+  linkType: hard
+
 "js-base64@npm:^3.7.2":
   version: 3.7.7
   resolution: "js-base64@npm:3.7.7"
@@ -11850,7 +11850,6 @@ __metadata:
     "@types/express": "npm:^4.17.17"
     "@types/graphql": "npm:^14.5.0"
     "@types/jest": "npm:^29.5.2"
-    "@types/js-cookie": "npm:^3"
     "@types/node": "npm:^22.5.4"
     "@types/nodemailer": "npm:^6.4.16"
     "@types/passport-jwt": "npm:^4.0.1"
@@ -11876,7 +11875,7 @@ __metadata:
     handlebars: "npm:^4.7.8"
     handlebars-loader: "npm:^1.7.3"
     jest: "npm:^29.5.0"
-    js-cookie: "npm:^3.0.5"
+    jose: "npm:^6.0.12"
     jsonwebtoken: "npm:^9.0.2"
     nodemailer: "npm:^6.9.16"
     passport: "npm:^0.7.0"
