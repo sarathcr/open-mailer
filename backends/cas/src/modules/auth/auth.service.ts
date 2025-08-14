@@ -124,7 +124,7 @@ export class AuthService {
     });
   }
 
-  async login(user: UserEntity) {
+  async login(user: User) {
     const payload = {
       casId: user.id,
       ...(user.isAdmin && { isAdmin: user.isAdmin }),
